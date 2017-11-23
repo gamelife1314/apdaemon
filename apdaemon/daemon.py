@@ -114,6 +114,7 @@ def daemon(service, pidfile="/tmp/python-daemon.pid",
         atexit.register(remove_pidfile_atexit)
 
         def term_signal_handler(sig, frame):
+            remove_pidfile_atexit()
             raise SystemExit(1)
 
         signal.signal(signal.SIGTERM, term_signal_handler)
