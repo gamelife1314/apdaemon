@@ -1,4 +1,4 @@
-sitemap: python3 daemon tool.
+apdaemon: python3 daemon tool.
 ====================================
 
 Install
