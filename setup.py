@@ -6,7 +6,7 @@ install_requires = [
 
 setup(
     name='apdaemon',
-    version='0.1.2',
+    version='0.1.3',
     packages=find_packages(),
     url='https://github.com/gamelife1314/apdaemon',
     license='MIT',
