@@ -6,7 +6,7 @@ install_requires = [
 
 setup(
     name='apdaemon',
-    version='0.1.0',
+    version='0.1.1',
     packages=find_packages(),
     url='https://github.com/gamelife1314/apdaemon',
     license='MIT',
@@ -14,6 +14,7 @@ setup(
     author_email='fudenglong1417@gmail.com',
     description='python daemon tool.',
     install_requires=install_requires,
+    long_description=open('README.rst').read(),
     platforms=["all"],
     classifiers=[
         "Development Status :: 4 - Beta",
