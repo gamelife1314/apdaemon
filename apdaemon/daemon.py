@@ -4,13 +4,35 @@ import os
 import sys
 import atexit
 import signal
-from functools import wraps
+from functools import wraps, partial
 
 import psutil
 
 __all__ = [
     "daemon"
 ]
+
+LOGGER_WARNING = "\033[41;33m\033[1m\033[4mWARNING\033[0m"
+LOGGER_INFO = "\033[40;32m\033[1m\033[4mINFO\033[0m"
+LOGGER_ERROR = "\033[40;31m\033[1m\033[4mERROR\033[0m"
+
+PROCESS_STOPPED = "STOPPED"
+PROCESS_RUNNING = "RUNNING"
+
+
+def __logger(service, pidfile, stdin, stdout, stderr, work_dir, pid,
+             level=LOGGER_INFO, status=PROCESS_RUNNING):
+
+    template = ("{level} {service} is \033[40;35m{status}\033[0m, pid is {pid}\n"
+                "|_______ pidfile  located  at: {pidfile}\n"
+                "|_______ stdin    from     at: {stdin}\n"
+                "|_______ stdout   redirect to: {stdout}\n"
+                "|_______ stderr   redirect to: {stderr}\n"
+                "|_______ work_dir located  at: {work_dir}\n")
+
+    msg = template.format(**locals())
+
+    print(msg, file=sys.stdout)
 
 
 def __check_process_is_running(pid):
@@ -44,13 +66,14 @@ def daemon(service, pidfile="/tmp/python-daemon.pid",
     * stderr:   stderr redirect.
     * work_dir: daemon process work directory.
     """
+    printf = partial(__logger, service, pidfile, stdin, stdout, stderr, work_dir)
 
     def start():
 
         if os.path.exists(pidfile):
             pid = open(pidfile, "r").read().strip()
             if __check_process_is_running(pid) is True:
-                print("Process %s is already running." % pid)
+                printf(pid, LOGGER_ERROR, PROCESS_RUNNING)
                 sys.exit(0)
             else:
                 os.remove(pidfile)
@@ -114,9 +137,9 @@ def daemon(service, pidfile="/tmp/python-daemon.pid",
                 running = True
 
         if running is False:
-            print("Service %s is stopped." % service, file=sys.stdout)
+            printf(pid, LOGGER_WARNING, PROCESS_STOPPED)
         else:
-            print("Service %s is running. pid：%s" % (service, pid), file=sys.stdout)
+            printf(pid, LOGGER_INFO, PROCESS_RUNNING)
         sys.exit(0)
 
     def restart():
@@ -126,6 +149,9 @@ def daemon(service, pidfile="/tmp/python-daemon.pid",
     command = sys.argv[1] if len(sys.argv) >= 2 else "start"
     if command in ["start", "stop", "restart", "status"]:
         locals()[command]()
+    else:
+        print("UNSUPPORTED COMMAND!")
+        sys.exit(0)
 
     def decorate(func):
         @wraps(func)
