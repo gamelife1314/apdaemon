@@ -21,3 +21,5 @@ example::
 
     if __name__ == '__main__':
         main()
+
+    run command: python3 daemon.py [start[default]|status|stop|restart]
