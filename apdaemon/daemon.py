@@ -20,6 +20,18 @@ PROCESS_STOPPED = "STOPPED"
 PROCESS_RUNNING = "RUNNING"
 
 
+PID_FILE = "/tmp/python-daemon.pid"
+STDOUT = "/tmp/python-daemon.log"
+STDIN = "/dev/null"
+
+if sys.platform.startswith("win"):
+    STDIN = "NUL"
+    PID_FILE = os.path.join(os.environ["TEMP"], "python-daemon.pid")
+    STDOUT = os.path.join(os.environ["TEMP"], "python-daemon.log")
+
+STDERR = STDOUT
+
+
 def __logger(service, pidfile, stdin, stdout, stderr, work_dir, pid,
              level=LOGGER_INFO, status=PROCESS_RUNNING):
 
@@ -42,8 +54,8 @@ def __check_process_is_running(pid):
         return False
 
 
-def daemon(service, pidfile="/tmp/python-daemon.pid",
-           stdin="/dev/null", stdout="/tmp/python-daemon.log", stderr="/tmp/python-daemon.log",
+def daemon(service, pidfile=PID_FILE,
+           stdin=STDIN, stdout=STDOUT, stderr=STDERR,
            work_dir="/"):
     """
     ----------------------------------------------
@@ -114,6 +126,7 @@ def daemon(service, pidfile="/tmp/python-daemon.pid",
         atexit.register(remove_pidfile_atexit)
 
         def term_signal_handler(sig, frame):
+            remove_pidfile_atexit()
             raise SystemExit(1)
 
         signal.signal(signal.SIGTERM, term_signal_handler)
