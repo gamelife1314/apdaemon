@@ -46,7 +46,7 @@ def daemon(service, pidfile="/tmp/python-daemon.pid",
     """
 
     def start():
-        # 检查进程是否已经启动
+
         if os.path.exists(pidfile):
             pid = open(pidfile, "r").read().strip()
             if __check_process_is_running(pid) is True:
@@ -55,7 +55,6 @@ def daemon(service, pidfile="/tmp/python-daemon.pid",
             else:
                 os.remove(pidfile)
 
-        # 从父进程分离
         try:
             if os.fork() > 0:
                 raise SystemExit(0)
@@ -66,18 +65,15 @@ def daemon(service, pidfile="/tmp/python-daemon.pid",
         os.umask(0)
         os.setsid()
 
-        # 放弃进程控制权
         try:
             if os.fork() > 0:
                 raise SystemExit(0)
         except OSError:
             raise RuntimeError("fork #2 failed.")
 
-        # 清空IO缓存
         sys.stdout.flush()
         sys.stderr.flush()
 
-        # 替换文件描述符，原先向控制台输出的都安静输出到相应的文件中
         with open(stdin, "rb", 0) as f:
             os.dup2(f.fileno(), sys.stdin.fileno())
         with open(stdout, "ab", 0) as f:
