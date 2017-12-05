@@ -1,4 +1,4 @@
-apdaemon: python3 daemon tool.
+apdaemon: Python Process Daemon Tool.
 ====================================
 
 Install

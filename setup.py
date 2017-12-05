@@ -12,7 +12,7 @@ setup(
     license='MIT',
     author='fudenglong',
     author_email='fudenglong1417@gmail.com',
-    description='python daemon tool.',
+    description='Python Process Daemon Tool.',
     install_requires=install_requires,
     long_description=open('README.rst').read(),
     platforms=["linux", "Macos"],

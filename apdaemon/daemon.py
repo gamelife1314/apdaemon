@@ -72,10 +72,12 @@ def daemon(service, pidfile=None,
     * stderr:   stderr redirect.
     * work_dir: daemon process work directory.
     """
-    printf = partial(__logger, service, pidfile, stdin, stdout, stderr, work_dir)
+
     pidfile = pidfile or "/tmp/%s.pid" % service
     stdout = stdout or "/tmp/%s.log" % service
     stderr = stderr or stdout
+
+    printf = partial(__logger, service, pidfile, stdin, stdout, stderr, work_dir)
 
     def start():
 
