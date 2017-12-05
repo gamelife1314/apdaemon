@@ -21,7 +21,7 @@ def __get_process_status(pid):
     try:
         return psutil.Process(int(pid)).status()
     except (psutil.NoSuchProcess, Exception):
-        return "Unknown"
+        return "Not Started"
 
 
 def __logger(service, pidfile, stdin, stdout, stderr, work_dir, pid,
