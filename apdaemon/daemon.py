@@ -16,13 +16,18 @@ LOGGER_WARNING = "\033[41;33m\033[1m\033[4mWARNING\033[0m"
 LOGGER_INFO = "\033[40;32m\033[1m\033[4mINFO\033[0m"
 LOGGER_ERROR = "\033[40;31m\033[1m\033[4mERROR\033[0m"
 
-PROCESS_STOPPED = "STOPPED"
-PROCESS_RUNNING = "RUNNING"
+
+def __get_process_status(pid):
+    try:
+        return psutil.Process(int(pid)).status()
+    except (psutil.NoSuchProcess, Exception):
+        return "Unknown"
 
 
 def __logger(service, pidfile, stdin, stdout, stderr, work_dir, pid,
-             level=LOGGER_INFO, status=PROCESS_RUNNING):
+             level=LOGGER_INFO):
 
+    status = __get_process_status(pid)
     template = ("{level} {service} is \033[40;35m{status}\033[0m, pid is {pid}\n"
                 "|_______ pidfile  located  at: {pidfile}\n"
                 "|_______ stdin    from     at: {stdin}\n"
@@ -35,9 +40,10 @@ def __logger(service, pidfile, stdin, stdout, stderr, work_dir, pid,
     print(msg, file=sys.stdout)
 
 
-def __check_process_is_running(pid):
+def __check_process_is_exists(pid):
     try:
-        return psutil.Process(int(pid)).status() == psutil._common.STATUS_RUNNING
+        psutil.Process(int(pid)).status()
+        return True
     except (psutil.NoSuchProcess, ValueError, Exception):
         return False
 
@@ -75,8 +81,8 @@ def daemon(service, pidfile=None,
 
         if os.path.exists(pidfile):
             pid = open(pidfile, "r").read().strip()
-            if __check_process_is_running(pid) is True:
-                printf(pid, LOGGER_ERROR, PROCESS_RUNNING)
+            if __check_process_is_exists(pid) is True:
+                printf(pid, LOGGER_ERROR)
                 sys.exit(0)
             else:
                 os.remove(pidfile)
@@ -125,7 +131,7 @@ def daemon(service, pidfile=None,
     def stop(exit_=True):
         if os.path.exists(pidfile):
             pid = open(pidfile, "r").read().strip()
-            if __check_process_is_running(pid) is True:
+            if __check_process_is_exists(pid) is True:
                 os.kill(int(pid), signal.SIGTERM)
             os.remove(pidfile)
 
@@ -137,13 +143,13 @@ def daemon(service, pidfile=None,
         pid = ""
         if os.path.exists(pidfile):
             pid = open(pidfile, "r").read().strip()
-            if __check_process_is_running(pid) is True:
+            if __check_process_is_exists(pid) is True:
                 running = True
 
         if running is False:
-            printf(pid, LOGGER_WARNING, PROCESS_STOPPED)
+            printf(pid, LOGGER_WARNING)
         else:
-            printf(pid, LOGGER_INFO, PROCESS_RUNNING)
+            printf(pid, LOGGER_INFO)
         sys.exit(0)
 
     def restart():
