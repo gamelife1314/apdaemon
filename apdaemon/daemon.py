@@ -42,8 +42,8 @@ def __check_process_is_running(pid):
         return False
 
 
-def daemon(service, pidfile="/tmp/python-daemon.pid",
-           stdin="/dev/null", stdout="/tmp/python-daemon.log", stderr="/tmp/python-daemon.log",
+def daemon(service, pidfile=None,
+           stdin="/dev/null", stdout=None, stderr=None,
            work_dir="/"):
     """
     ----------------------------------------------
@@ -67,6 +67,9 @@ def daemon(service, pidfile="/tmp/python-daemon.pid",
     * work_dir: daemon process work directory.
     """
     printf = partial(__logger, service, pidfile, stdin, stdout, stderr, work_dir)
+    pidfile = pidfile or "/tmp/%s.pid" % service
+    stdout = stdout or "/tmp/%s.log" % service
+    stderr = stderr or stdout
 
     def start():
 
