@@ -23,3 +23,4 @@ example::
         main()
 
     run command: python3 daemon.py [start[default]|status|stop|restart]
+
